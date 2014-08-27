@@ -1,0 +1,1 @@
+link scripts/ccg/parsebin.py

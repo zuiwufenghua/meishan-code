@@ -1,0 +1,1 @@
+link ../lang/chinese/ctbtools/config.py
