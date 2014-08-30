@@ -9,6 +9,15 @@ import theano
 # By convention, the tensor submodule is loaded as T
 import theano.tensor as T
 
+# multi-layer perceptron:
+# each layer is a function by  y = s(W.x+b)
+# If y is n-dimension, then w and b must also be n-dimension,
+# y[i] = s(W[i].x + b[i])
+# W = n_output X n_input, b = n_output X 1, and x = n_input X 1
+# the input is the lower-layer's output
+# the output is used as the higher-layer's input
+# it can have many layers
+# the highest layer is the final output
 class Layer(object):
     def __init__(self, W_init, b_init, activation):
         '''
@@ -93,6 +102,17 @@ class MLP(object):
         # Initialize lists of layers
         self.layers = []
         # Construct the layers
+	# zip function: 
+  	# W_init is an array (W[0], W[1], W[2], ....), the length equals the size of layers
+	#        W[i] is a matrix: shape=((i)_output, (i)_input),
+	#       (i)_input = (i-1)_output,  (i)_output = (i+1)_input
+	# b_init is similar (b[0], b[1], b[2], ....), b[i] = ((i)_output, 1)
+	# activations = (activation[0], activation[1],....) for each layer
+        # zip function changes (W_init, b_init, activations) to
+	# ((W_init[0], b_init[0], activations[0]),
+	#  (W_init[1], b_init[1], activations[1]),
+	#  ......,
+        #  (W_init[n], b_init[n], activations[n])), n = layer size
         for W, b, activation in zip(W_init, b_init, activations):
             self.layers.append(Layer(W, b, activation))
 
@@ -174,7 +194,7 @@ if __name__ == '__main__':
     # Training data - two randomly-generated Gaussian-distributed clouds of points in 2d space
     np.random.seed(0)
     # Number of points
-    N = 1000
+    N = 10000
     # Labels for each cluster
     y = np.random.random_integers(0, 1, N)
     # Mean of each cluster
@@ -210,6 +230,7 @@ if __name__ == '__main__':
         # Note that this doesn't make a ton of sense when using squared distance
         # because the sigmoid function is bounded on [0, 1].
         activations.append(T.nnet.sigmoid)
+        # activations.append(T.tanh)
     # Create an instance of the MLP class
     mlp = MLP(W_init, b_init, activations)
     
@@ -248,10 +269,11 @@ if __name__ == '__main__':
         # and computing the proportion of points whose class match the ground truth class.
         accuracy = np.mean((current_output > .5) == y)
         # Plot network output after this iteration
-        plt.figure(figsize=(8, 8))
-        plt.scatter(X[0, :], X[1, :], c=current_output,
-                    lw=.3, s=3, cmap=plt.cm.cool, vmin=0, vmax=1)
-        plt.axis([-6, 6, -6, 6])
-        plt.title('Cost: {:.3f}, Accuracy: {:.3f}'.format(float(current_cost), accuracy))
-        plt.show()
+        # plt.figure(figsize=(8, 8))
+        # plt.scatter(X[0, :], X[1, :], c=current_output,
+        #             lw=.3, s=3, cmap=plt.cm.cool, vmin=0, vmax=1)
+        # plt.axis([-6, 6, -6, 6])
+        # plt.title('Cost: {:.3f}, Accuracy: {:.3f}'.format(float(current_cost), accuracy))
+        #plt.show()
+        print 'Cost: {:.3f}, Accuracy: {:.3f}'.format(float(current_cost), accuracy)
         iteration += 1
