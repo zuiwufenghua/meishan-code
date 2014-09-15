@@ -6,21 +6,15 @@
 # include <iostream>
 
 using namespace Cnf;
-using namespace SemiCnf;
 
 /* Parameters */
 static int regularize = 0;
 static int iter = 50;
-static unsigned int block = 64;
-static unsigned int pool = 1000000;
 static unsigned int bound = 3;
 static unsigned int fbound = 3;
 static unsigned int sbound = 1;
 static unsigned int sqcol = 3;
-static unsigned int sqallocsize = 4096*1000;
-static unsigned int sqarraysize = 1000;
 static unsigned int labelcol = 2;
-static unsigned int cache = 1024*100000;
 static float cnfpenalty[3] = {0.0001,0.0001,0.0001};
 static float semicnfpenalty[5] = {0.0001,0.0001,0.0001,0.0001,0.0001};
 static float lambda = 1.0;
@@ -33,7 +27,7 @@ static std::string save;
 void usage(int argc, char **argv)
 {
    std::cerr << "Usage:" << argv[0] << " [options]" << std::endl;
-   std::cerr << "-l, --learner\t" << "learning algorithm [cnf,semicnf](default cnf)" << std::endl;
+   std::cerr << "-l, --learner\t" << "learning algorithm [cnf](default cnf)" << std::endl;
    std::cerr << "-t, --template=FILE\t" << "template" << std::endl;
    std::cerr << "-c, --corpus=FILE\t" << "training corpus" << std::endl;
    std::cerr << "-s, --save=FILE\t" << "modelfile" << std::endl;
@@ -50,8 +44,6 @@ void usage(int argc, char **argv)
    std::cerr << "--cache=INT\t" << "cache size(default 1024*100000)" << std::endl;
    std::cerr << "--iter=INT\t" << "iteration(default 50)" << std::endl;
    std::cerr << "--sqcol=INT\t" << "input sequence's col size(default 3)" << std::endl;
-   std::cerr << "--sqarraysize=INT\t" << "input sequence's array size(default 1000)" << std::endl;
-   std::cerr << "--sqallocsize=INT\t" << "input sequence's alloc size(default 4096*1000)" << std::endl;
    std::cerr << "--labelcol=INT\t" << "label col in input sequence(default 2)" << std::endl;
 
    exit(1);
@@ -121,18 +113,6 @@ int set(const char *pname, const char *optarg)
    {
       alpha = atof(optarg);
    }
-   else if (std::strcmp(pname,"block") == 0)
-   {
-      block = (unsigned int)atoi(optarg);
-   }
-   else if (std::strcmp(pname,"pool") == 0)
-   {
-      pool = (unsigned int)atoi(optarg);
-   }
-   else if (std::strcmp(pname,"cache") == 0)
-   {
-      cache = (unsigned int)atoi(optarg);
-   }
    else if (std::strcmp(pname,"iter") == 0)
    {
       iter = atoi(optarg);
@@ -140,14 +120,6 @@ int set(const char *pname, const char *optarg)
    else if (std::strcmp(pname,"sqcol") == 0)
    {
       sqcol = (unsigned int)atoi(optarg);
-   }
-   else if (std::strcmp(pname,"sqarraysize") == 0)
-   {
-      sqarraysize = (unsigned int)atoi(optarg);
-   }
-   else if (std::strcmp(pname,"sqallocsize") == 0)
-   {
-      sqallocsize = (unsigned int)atoi(optarg);
    }
    else if (std::strcmp(pname,"labelcol") == 0)
    {
@@ -178,13 +150,8 @@ int getparams(int argc, char **argv)
          {"penalty", required_argument,   0, 0},
          {"lambda",  required_argument,   0, 0},
          {"alpha",   required_argument,   0, 0},
-         {"block",   required_argument,   0, 0},
-         {"pool", required_argument,   0, 0},
-         {"cache", required_argument,   0, 0},
          {"iter", required_argument,   0, 0},
          {"sqcol", required_argument,   0, 0},
-         {"sqarraysize", required_argument,   0, 0},
-         {"sqallocsize", required_argument,   0, 0},
          {"labelcol", required_argument,   0, 0},
          {0, 0, 0, 0}
       };
@@ -273,32 +240,12 @@ int main (int argc, char **argv)
    }
    if (algorithm == "cnf")
    {
-      Learner<Cnflearn> learner(tmpl.c_str(), corpus.c_str(), pool);
-      learner.setcache(cache);
+      Learner<Cnflearn> learner(tmpl.c_str(), corpus.c_str());
       learner.setbound(bound);
       learner.setpenalty(cnfpenalty[0],cnfpenalty[1],cnfpenalty[2]);
       learner.setsqcol(sqcol);
-      learner.setsqallocsize(sqallocsize);
-      learner.setsqarraysize(sqarraysize);
       learner.setlabelcol(labelcol);
       learner.setlambda(lambda);
-      learner.init();
-      learner.learn((unsigned int)iter,regularize);
-      learner.save(save.c_str());
-   }
-   else if (algorithm == "semicnf")
-   {
-      Learner<SemiCnflearn> learner(tmpl.c_str(), corpus.c_str(), pool);
-      learner.setcache(cache);
-      learner.setfbound(fbound);
-      learner.setsbound(sbound);
-      learner.setpenalty(semicnfpenalty[0],semicnfpenalty[1],semicnfpenalty[2],semicnfpenalty[3],semicnfpenalty[4]);
-      learner.setsqcol(sqcol);
-      learner.setsqallocsize(sqallocsize);
-      learner.setsqarraysize(sqarraysize);
-      learner.setlabelcol(labelcol);
-      learner.setlambda(lambda);
-      learner.setalpha(alpha);
       learner.init();
       learner.learn((unsigned int)iter,regularize);
       learner.save(save.c_str());

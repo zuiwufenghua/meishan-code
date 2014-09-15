@@ -13,7 +13,6 @@
 # include <myutil.h>
 # include <dic.h>
 # include <sequence.h>
-# include <allocmd.h>
 # include <sparsevect.h>
 # include <cstdlib>
 
@@ -21,7 +20,7 @@
 # define CNF_BLOCK 128
 
 using namespace Cnf;
-Cnflearn::Cnflearn(const char *tmpl, const char *corpus, unsigned int pool)
+Cnflearn::Cnflearn(const char *tmpl, const char *corpus)
 {
    this->tmpl = tmpl;
    this->corpus = corpus;
@@ -31,10 +30,6 @@ Cnflearn::Cnflearn(const char *tmpl, const char *corpus, unsigned int pool)
    this->labelcol = 2;
    /// sqcolsize
    this->sqcolsize = 3;
-   /// sqarraysize
-   this->sqarraysize = 1000;
-   /// sqallocsize
-   this->sqallocsize = 4096*1000;
    /// feature bound
    this->bound = 3;
    /// lambda
@@ -51,16 +46,14 @@ Cnflearn::Cnflearn(const char *tmpl, const char *corpus, unsigned int pool)
    this->cc[1] = 0;
    /// alpha t cache
    this->cc[2] = 0;
-   /// alloc pool
-   this->ac = new PoolAlloc(CNF_BLOCK, pool);
    /// feature dic
-   this->features = new Dic(this->ac, CountUp);
+   this->features = new Dic(CountUp);
    /// unigram feature dic
-   this->ufeatures = new Dic(this->ac, Index);
+   this->ufeatures = new Dic(Index);
    /// bigram feature dic
-   this->bfeatures = new Dic(this->ac, Index);
+   this->bfeatures = new Dic(Index);
    /// label dic
-   this->labels = new Dic(this->ac, Index);
+   this->labels = new Dic(Index);
    /// bonly flg
    this->bonly = false;
    /// bonly tmpl id
@@ -71,28 +64,25 @@ Cnflearn::Cnflearn(const char *tmpl, const char *corpus, unsigned int pool)
    this->corrects = 0;
    /// tags
    this->tags = 0;
-   /// cachesize
-   this->cachesize = 1024*100000;
 }
 
 Cnflearn::~Cnflearn()
 {
-   this->ac->release(this->model);
-   this->ac->release(this->pcache);
+   free(this->model);
+   free(this->pcache);
    delete this->ufeatures;
    delete this->bfeatures;
    delete this->labels;
-   delete this->ac;
 }
 
 bool Cnflearn::init()
 {
    if (this->valid)
    {
-      this->ac->release(this->model);
-      this->ac->release(this->pcache);
+      free(this->model);
+      free(this->pcache);
       /// feature dic
-      this->features = new Dic(this->ac, CountUp);
+      this->features = new Dic(CountUp);
    }
    /// feature extraction and encoding
    this->extfeature();
@@ -111,25 +101,12 @@ void Cnflearn::setsqcol(unsigned int sqcolsize)
    this->sqcolsize = sqcolsize;
 }
 
-void Cnflearn::setsqarraysize(unsigned int sqarraysize)
-{
-   this->sqarraysize = sqarraysize;
-}
-
-void Cnflearn::setsqallocsize(unsigned int sqallocsize)
-{
-   this->sqallocsize = sqallocsize;
-}
 
 void Cnflearn::setlabelcol(unsigned int labelcol)
 {
    this->labelcol = labelcol;
 }
 
-void Cnflearn::setcache(unsigned int cachesize)
-{
-   this->cachesize = cachesize;
-}
 
 void Cnflearn::setbound(unsigned int bound)
 {
@@ -165,7 +142,7 @@ void Cnflearn::getclabels(Sequence *s, std::vector<int>& labels)
    int col = s->getRowSize();
    for (int i = 0; i < col; i++)
    {
-      nodeptr *l = this->labels->get(s->getToken(i, this->labelcol));
+      nodeptr *l = this->labels->get(s->getToken(i, this->labelcol).c_str());
       labels.push_back((*l)->val);
    }
 }
@@ -188,6 +165,7 @@ void Cnflearn::storefset(Sequence *sq,
       }
       char buf[CNF_BUFSIZE];
       int tmpl = 0;
+      std::string f;
       while (fgets(buf, CNF_BUFSIZE, fp) != NULL)
       {
          MyUtil::chomp(buf);
@@ -195,27 +173,28 @@ void Cnflearn::storefset(Sequence *sq,
          {
             continue;
          }
-         char *f = this->expand(buf, sq, i);
+         f = this->expand(buf, sq, i, f);
          //int tmpl = this->f2t[f];
-         if (*f == 'U') /// unigram feature
+         if (f[0] == 'U') /// unigram feature
          {
-            nodeptr *n = this->ufeatures->get(f);
+            nodeptr *n = this->ufeatures->get(f.c_str());
             if (*n != unil)
             {
                featureset[i].uf.push_back((*n)->val);
                featureset[i].ut.push_back(tmpl);
             }
          }
-         else if (*f == 'B') /// bigram feature
+         else if (f[0] == 'B') /// bigram feature
          {
-            nodeptr *n = this->bfeatures->get(f);
+            nodeptr *n = this->bfeatures->get(f.c_str());
             if (*n != bnil)
             {
                featureset[i].bf.push_back((*n)->val);
                featureset[i].bt.push_back(tmpl);
             }
          }
-         this->ac->release(f);
+
+
          tmpl++;
       }
       fclose(fp);
@@ -542,11 +521,11 @@ void Cnflearn::getgradient(fbnode **lattice,
    }
 }
 
-void Cnflearn::update(Sequence *sq, AllocMemdiscard *cache, unsigned int reg)
+void Cnflearn::update(Sequence *sq, unsigned int reg)
 {
    int col = sq->getRowSize();
    int row = this->labels->getsize();
-   SparseVector upv(cache);
+   SparseVector upv;
 
    /// get correct labels
    std::vector<int> corrects;
@@ -557,10 +536,10 @@ void Cnflearn::update(Sequence *sq, AllocMemdiscard *cache, unsigned int reg)
    this->storefset(sq, featureset);
 
    /// build lattice
-   fbnode **lattice = (fbnode**)cache->alloc(sizeof(fbnode*)*col);
+   fbnode **lattice = (fbnode**)malloc(sizeof(fbnode*)*col);
    for (int c = 0; c < col ; c++)
    {
-      lattice[c] = (fbnode*)cache->alloc(sizeof(fbnode)*row);
+      lattice[c] = (fbnode*)malloc(sizeof(fbnode)*row);
    }
    /// init lattice
    this->initlattice(lattice, featureset);
@@ -596,6 +575,12 @@ void Cnflearn::update(Sequence *sq, AllocMemdiscard *cache, unsigned int reg)
    {
       this->l2_regularize(&upv);
    }
+
+   for (int c = 0; c < col; c++)
+   {
+      free(lattice[c]);
+   }
+   free(lattice);
 }
 
 void Cnflearn::l2_regularize(SparseVector *v)
@@ -656,11 +641,8 @@ void Cnflearn::learn(unsigned int iter, unsigned int reg)
       fprintf (stderr, "It's not initialized\n");
       exit(1);
    }
-   AllocMemdiscard cache(this->cachesize);
    Sequence sq;
    sq.setColSize(this->sqcolsize);
-   sq.setAllocSize(this->sqallocsize);
-   sq.setArraySize(this->sqarraysize);
    sq.init();
    int t = 0;
    for (unsigned int i = 0; i < iter; i++)
@@ -679,9 +661,8 @@ void Cnflearn::learn(unsigned int iter, unsigned int reg)
             continue;
          }
          this->decay(t++);
-         this->update(&sq, &cache, reg);
+         this->update(&sq, reg);
          sq.clear();
-         cache.reset();
       }
       fclose(fp);
       this->lreport(i);
@@ -737,8 +718,8 @@ void Cnflearn::initmodel()
     * | unigram feature functions | bigram feature functions | gate functions |
     * +-----------------------------------------------------------------------+
     */
-   this->model = (float*)this->ac->alloc(sizeof(float)*params);
-   this->pcache = (float*)this->ac->alloc(sizeof(float)*params);
+   this->model = (float*)malloc(sizeof(float)*params);
+   this->pcache = (float*)malloc(sizeof(float)*params);
 
    for (int i = 0; i < params-gparams; i++)
    {
@@ -770,7 +751,7 @@ void Cnflearn::storeff(nodeptr p, nodeptr nil)
    {
       return;
    }
-   char *c = p->key;
+   const char *c = p->key.c_str();
    if (*c == 'U') // unigram feature
    {
       this->ufeatures->insert(c);
@@ -797,15 +778,15 @@ void Cnflearn::boundfeature()
    delete this->features;
 }
 
-char* Cnflearn::expand(char *tp, Sequence *s, int current)
+std::string Cnflearn::expand(char *tp, Sequence *s, int current, std::string& f)
 {
-   char f[CNF_BUFSIZE] = "\0";
+	f = "";
    for (char *p = tp; *p != '\0'; p++)
    {
       if (*p == '%' && *(p+1) == 'x' && *(p+2) == '[')
       {
          *p++ = '\0';
-         std::strcat(f,tp);
+         f = f + tp;
          tp = p+2;
          for (; *p != ','; p++) ;
          *p++ = '\0';
@@ -817,17 +798,16 @@ char* Cnflearn::expand(char *tp, Sequence *s, int current)
          tp = p;
          for (; *p != ']'; p++) ;
          *p++ = '\0';
-         std::strcat(f, s->getToken(current+row,col));
+         f = f + s->getToken(current+row,col);
          tp = p;
       }
    }
    if (*tp != '\0')
    {
-      std::strcat(f, tp);
+      //std::strcat(f, tp);
+	   f = f + tp;
    }
-   char *feature = (char*)this->ac->alloc(sizeof(char)*std::strlen(f)+1);
-   std::strcpy(feature,f);
-   return feature;
+   return f;
 }
 
 void Cnflearn::extract(Sequence *s)
@@ -843,6 +823,7 @@ void Cnflearn::extract(Sequence *s)
       }
       char buf[CNF_BUFSIZE];
       int tmpl = 0;
+      std::string f;
       while (fgets(buf, CNF_BUFSIZE, fp) != NULL)
       {
          MyUtil::chomp(buf);
@@ -850,9 +831,8 @@ void Cnflearn::extract(Sequence *s)
          {
             continue;
          }
-         char *f = this->expand(buf, s, i);
-         nodeptr n = this->features->insert(f);
-         this->ac->release(f);
+         f = this->expand(buf, s, i, f);
+         nodeptr n = this->features->insert(f.c_str());
          tmpl++;
       }
       fclose(fp);
@@ -861,12 +841,12 @@ void Cnflearn::extract(Sequence *s)
 
 void Cnflearn::extlabel(Sequence *s)
 {
-   char *r = NULL;
+   std::string r = "";
    int row = s->getRowSize();
    for (int i = 0; i < row; i++)
    {
       r = s->getToken(i, this->labelcol);
-      nodeptr l = this->labels->insert(r);
+      nodeptr l = this->labels->insert(r.c_str());
       if (l != NULL)
       {
          this->label2surf.push_back(l->key);
@@ -884,8 +864,6 @@ void Cnflearn::extfeature()
    }
    Sequence sq;
    sq.setColSize(this->sqcolsize);
-   sq.setAllocSize(this->sqallocsize);
-   sq.setArraySize(this->sqarraysize);
    sq.init();
    this->instance = 0;
    while(feof(fp) == 0)
@@ -981,10 +959,16 @@ bool Cnflearn::tmplcheck()
    fclose(fp);
    this->fwit.push_back(this->nk);
 
+   for(int idx = 0; idx < this->fwit.size(); idx++)
+   {
+	   std::cout << this->fwit[idx] << " ";
+   }
+   std::cout << std::endl;
+   std::cout << this->nk << std::endl;
    return true;
 }
 
-void Cnflearn::inversef(nodeptr p, nodeptr nil, std::vector<char*>& f)
+void Cnflearn::inversef(nodeptr p, nodeptr nil, std::vector<std::string>& f)
 {
    if (p == nil)
    {
@@ -1010,7 +994,7 @@ void Cnflearn::save(const char *save)
    fprintf (fp, "Start_Label\n");
    for (unsigned int i = 0; i < this->label2surf.size(); i++)
    {
-      fprintf (fp, "[%d]=%s\n",i,this->label2surf[i]);
+      fprintf (fp, "[%d]=%s\n",i,this->label2surf[i].c_str());
    }
    fprintf (fp, "End_Label\n");
    fprintf (fp, "Start_Fwit\n");
@@ -1022,8 +1006,8 @@ void Cnflearn::save(const char *save)
    fprintf (fp, "Start_Params\n");
    fwrite(this->model,1,sizeof(float)*this->parameters,fp);
    fprintf (fp, "End_Params\n");
-   std::vector<char*> ufs(this->ufeatures->getsize());
-   std::vector<char*> bfs(this->bfeatures->getsize());
+   std::vector<std::string> ufs(this->ufeatures->getsize());
+   std::vector<std::string> bfs(this->bfeatures->getsize());
    nodeptr unil = this->ufeatures->getnil();
    nodeptr bnil = this->bfeatures->getnil();
    for (int i = 0; i < HASHSIZE; i++)
@@ -1047,13 +1031,13 @@ void Cnflearn::save(const char *save)
    fprintf (fp, "Start_uFeatures\n");
    for (unsigned int i = 0; i < ufs.size(); i++)
    {
-      fprintf (fp, "[%d]=%s\n",i,ufs[i]);
+      fprintf (fp, "[%d]=%s\n",i,ufs[i].c_str());
    }
    fprintf (fp, "End_uFeatures\n");
    fprintf (fp, "Start_bFeatures\n");
    for (unsigned int i = 0; i < bfs.size(); i++)
    {
-      fprintf (fp, "[%d]=%s\n",i,bfs[i]);
+      fprintf (fp, "[%d]=%s\n",i,bfs[i].c_str());
    }
    fprintf (fp, "End_bFeatures\n");
    fclose(fp);

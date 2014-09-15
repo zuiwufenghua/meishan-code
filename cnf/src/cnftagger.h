@@ -32,7 +32,7 @@ namespace Cnf
           * @param   tmpl template
           * @param   poolsize poolsize for dic
           */
-         Cnftagger(const char *tmpl, unsigned int pool);
+         Cnftagger(const char *tmpl);
          ~Cnftagger();
          /**
           * Load Model
@@ -51,7 +51,6 @@ namespace Cnf
           * @param   labelids store predicted label ids
           */
          void viterbi(Sequence *s,
-               AllocMemdiscard *cache,
                std::vector<int>& labelids);
          /**
           * Output
@@ -59,24 +58,13 @@ namespace Cnf
           * @param   labels   predicted label ids
           */
          void output(Sequence *s, std::vector<int>& labels);
-         /**
-          * Cache Size
-          * @param   cache cachesize
-          */
-         void setcache(unsigned int cachesize);
+
          /**
           * Sequence Colsize
           * @param   sqcolsize   sqcolsize
           */
          void setsqcol(unsigned int sqcolsize);
-         /**
-          * Sequence ArraySize
-          */
-         void setsqarraysize(unsigned int sqarraysize);
-         /**
-          * Sequence AllocSize
-          */
-         void setsqallocsize(unsigned int sqallocsize);
+
          /**
           * Clear model
           */
@@ -92,26 +80,18 @@ namespace Cnf
          float *model;
          /// template file
          std::string tmpl;
-         /// cache size for tagging
-         unsigned int cachesize;
          /// labelsize
          unsigned int labelsize;
          /// unigram feature dic
          Dic *ufeatures;
          /// bigram feature dic
          Dic *bfeatures;
-         /// Pool Allocator
-         PoolAlloc *ac;
          /// first weight in template
          std::vector<int> fwit;
          /// sequence col size
          unsigned int sqcolsize;
          /// sequence array size
-         unsigned int sqarraysize;
-         /// sequence alloc size
-         unsigned int sqallocsize;
-         /// feature to template index
-         //std::map<std::string,int> f2t;
+
          /// valid
          bool valid;
          /// unigram parameters
@@ -133,7 +113,7 @@ namespace Cnf
           * @param s   sequence
           * @param current current row number
           */
-         char* expand(char *tp, Sequence *s, int current);
+         std::string expand(char *tp, Sequence *s, int current, std::string& f);
          /**
           * store feature set
           */

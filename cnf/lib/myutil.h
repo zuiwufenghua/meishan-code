@@ -19,6 +19,23 @@ class MyUtil
       MyUtil();
       ~MyUtil();
 
+
+      static inline void split_bystr(const std::string &str,
+			std::vector<std::string> &vec, const std::string &sep) {
+		vec.clear();
+		std::string::size_type pos1 = 0, pos2 = 0;
+		std::string word;
+		while ((pos2 = str.find(sep, pos1)) != std::string::npos) {
+			word = str.substr(pos1, pos2 - pos1);
+			pos1 = pos2 + sep.size();
+			if (!word.empty())
+				vec.push_back(word);
+		}
+		word = str.substr(pos1);
+		if (!word.empty())
+			vec.push_back(word);
+	}
+
       static inline bool IsEOS (const char *str)
       {
          if (std::strcmp(str,"") == 0)
@@ -136,6 +153,7 @@ class MyUtil
       static void sqread(FILE *fp, Sequence *s, unsigned int bufsize)
       {
          char buf[bufsize];
+         int count = 0;
          while (fgets(buf,bufsize,fp) != NULL)
          {
             MyUtil::chomp(buf);
@@ -144,7 +162,10 @@ class MyUtil
                break;
             }
             s->push(buf);
+            count++;
+            std::cout << buf << std::endl;
          }
+         std::cout  << std::endl;
       }
       /**
        * read sequence function

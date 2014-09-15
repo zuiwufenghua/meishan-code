@@ -2,7 +2,6 @@
 # define CNF_LEARNER
 
 # include <cnflearn.h>
-# include <semicnflearn.h>
 
 template<class T>
 class Learner
@@ -13,7 +12,7 @@ class Learner
        * @param corpus training-corpus
        * @param poolsize poolsize for allocator
        */
-      Learner(const char *tmpl, const char *corpus, unsigned int poolsize);
+      Learner(const char *tmpl, const char *corpus);
       ~Learner();
       /** Learn Model Parameters
        * @param iter iteration
@@ -26,10 +25,7 @@ class Learner
       void save(const char *save);
       /** Initialize */
       bool init();
-      /** Set cachesize
-       * @param cache cachesize
-       */
-      void setcache(unsigned int cachesize);
+
       /** Set penalty parameters
        * @param w penalty parameter for observed-feature
        * @param u penalty parameter for transition-feauture
@@ -52,14 +48,6 @@ class Learner
        * @param colsize colsize of sequence
        */
       void setsqcol(unsigned int sqcolsize);
-      /** Set arraysize of sequence
-       * @param arraysize number of tokens in sequence
-       */
-      void setsqarraysize(unsigned int sqarraysize);
-      /** Set alloc-size of sequence
-       * @param allocsize allocsize
-       */
-      void setsqallocsize(unsigned int sqallocsize);
       /** Set threshold of cut-off for feature
        * @param bound NUM
        */
@@ -88,105 +76,73 @@ class Learner
       T *impl;
 };
 
-   template<class T>
-Learner<T>::Learner(const char *tmpl, const char *corpus, unsigned int poolsize)
+template<class T>
+Learner<T>::Learner(const char *tmpl, const char *corpus)
 {
-   this->impl = new T(tmpl,corpus,poolsize);
+this->impl = new T(tmpl,corpus);
 }
 
-   template<class T>
+template<class T>
 Learner<T>::~Learner()
 {
-   delete this->impl;
+delete this->impl;
 }
 
-   template<class T>
+template<class T>
 void Learner<T>::learn(unsigned int iter, unsigned int reg)
 {
-   this->impl->learn(iter,reg);
+this->impl->learn(iter,reg);
 }
 
-   template<class T>
+template<class T>
 void Learner<T>::save(const char *save)
 {
-   this->impl->save(save);
+this->impl->save(save);
 }
 
-   template<class T>
+template<class T>
 bool Learner<T>::init()
 {
-   return this->impl->init();
+return this->impl->init();
 }
 
-   template<class T>
-void Learner<T>::setcache(unsigned int cachesize)
-{
-   this->impl->setcache(cachesize);
-}
 
-   template<class T>
+
+template<class T>
 void Learner<T>::setlabelcol(unsigned int labelcol)
 {
-   this->impl->setlabelcol(labelcol);
+this->impl->setlabelcol(labelcol);
 }
 
-   template<class T>
+template<class T>
 void Learner<T>::setsqcol(unsigned int sqcolsize)
 {
-   this->impl->setsqcol(sqcolsize);
+this->impl->setsqcol(sqcolsize);
 }
 
-   template<class T>
-void Learner<T>::setsqarraysize(unsigned int sqarraysize)
-{
-   this->impl->setsqarraysize(sqarraysize);
-}
 
-   template<class T>
-void Learner<T>::setsqallocsize(unsigned int sqallocsize)
-{
-   this->impl->setsqallocsize(sqallocsize);
-}
 
-   template<class T>
+template<class T>
 void Learner<T>::setlambda(float lambda)
 {
-   this->impl->setlambda(lambda);
+this->impl->setlambda(lambda);
 }
 
-   template<>
+template<>
 void Learner<Cnf::Cnflearn>::setpenalty(float w, float u, float t)
 {
-   this->impl->setpenalty(w,u,t);
+this->impl->setpenalty(w,u,t);
 }
 
-   template<>
-void Learner<SemiCnf::SemiCnflearn>::setpenalty(float bs, float us, float bf, float uf, float t)
-{
-   this->impl->setpenalty(bs,us,bf,uf,t);
-}
 
-   template<>
+
+template<>
 void Learner<Cnf::Cnflearn>::setbound(unsigned int bound)
 {
-   this->impl->setbound(bound);
+this->impl->setbound(bound);
 }
 
-   template<>
-void Learner<SemiCnf::SemiCnflearn>::setfbound(unsigned int fbound)
-{
-   this->impl->setfbound(fbound);
-}
 
-   template<>
-void Learner<SemiCnf::SemiCnflearn>::setsbound(unsigned int sbound)
-{
-   this->impl->setsbound(sbound);
-}
 
-   template<>
-void Learner<SemiCnf::SemiCnflearn>::setalpha(float alpha)
-{
-   this->impl->setalpha(alpha);
-}
+
 # endif /* CNF_LEARNER */

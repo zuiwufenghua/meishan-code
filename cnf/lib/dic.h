@@ -4,7 +4,7 @@
 # ifndef __DIC_H__
 # define __DIC_H__
 
-# include <allocpl.h>
+#include <string>
 extern "C"
 {
 # include <limits.h>
@@ -12,6 +12,7 @@ extern "C"
 
 //# define HASHSIZE 1500007
 # define HASHSIZE 2597
+
 
 
 typedef enum
@@ -22,19 +23,20 @@ typedef enum
 
 typedef struct dicnode {
    struct dicnode *left, *right;
-   char *key;
-   int val;
+   std::string key;
+   int val;  // frequence or index
 } *nodeptr;
 
 class Dic
 {
    public:
-      Dic(PoolAlloc *ac, DicMode mode);
+
+      Dic(DicMode mode);
       ~Dic();
       /**
        * @param[in] keyword
        */
-      nodeptr insert(char *word);
+      nodeptr insert(const char *word);
       /**
        * @param[in] keyword
        * @param[out] node
@@ -52,7 +54,7 @@ class Dic
        * @param[out] filling rate of table
        */
       float getfillingrate();
-      nodeptr *table;
+      nodeptr* table;
    private:
       Dic();
       Dic(const Dic&);
@@ -69,8 +71,6 @@ class Dic
          return (int)v;
       }
 
-      int recallfree(nodeptr p);
-      PoolAlloc *ac;
       int wordnum;
       DicMode mode;
 };

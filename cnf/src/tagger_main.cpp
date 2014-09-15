@@ -6,15 +6,10 @@
 # include <iostream>
 
 using namespace Cnf;
-using namespace SemiCnf;
 
 /* Parameters */
-static unsigned int block = 64;
-static unsigned int pool = 1000000;
-static unsigned int cache = 1024*100000;
+
 static unsigned int sqcol = 3;
-static unsigned int sqallocsize = 4096*1000;
-static unsigned int sqarraysize = 1000;
 static std::string algorithm = "cnf";
 static std::string tmpl;
 static std::string corpus;
@@ -23,7 +18,7 @@ static std::string model;
 void usage(int argc, char **argv)
 {
    std::cerr << "Usage:" << argv[0] << " [options]" << std::endl;
-   std::cerr << "-l, --learner\t" << "learning algorithm [cnf,semicnf](default cnf)" << std::endl;
+   std::cerr << "-l, --learner\t" << "learning algorithm [cnf](default cnf)" << std::endl;
    std::cerr << "-t, --template=FILE\t" << "template" << std::endl;
    std::cerr << "-c, --corpus=FILE\t" << "test corpus" << std::endl;
    std::cerr << "-m, --model=FILE\t" << "modelfile" << std::endl;
@@ -38,30 +33,11 @@ void usage(int argc, char **argv)
 
 int set(const char *pname, const char *optarg)
 {
-   if (std::strcmp(pname,"block") == 0)
-   {
-      block = (unsigned int)atoi(optarg);
-   }
-   else if (std::strcmp(pname,"pool") == 0)
-   {
-      pool = (unsigned int)atoi(optarg);
-   }
-   else if (std::strcmp(pname,"cache") == 0)
-   {
-      cache = (unsigned int)atoi(optarg);
-   }
-   else if (std::strcmp(pname,"sqcol") == 0)
+	if (std::strcmp(pname,"sqcol") == 0)
    {
       sqcol = (unsigned int)atoi(optarg);
    }
-   else if (std::strcmp(pname,"sqarraysize") == 0)
-   {
-      sqarraysize = (unsigned int)atoi(optarg);
-   }
-   else if (std::strcmp(pname,"sqallocsize") == 0)
-   {
-      sqallocsize = (unsigned int)atoi(optarg);
-   }
+
    return 0;
 }
 
@@ -76,12 +52,7 @@ int getparams(int argc, char **argv)
          {"template", required_argument, 0, 't'},
          {"corpus", required_argument, 0, 'c'},
          {"model", required_argument, 0, 'm'},
-         {"block", required_argument, 0, 0},
-         {"pool", required_argument, 0, 0},
-         {"cache", required_argument, 0, 0},
          {"sqcol", required_argument, 0, 0},
-         {"sqarraysize", required_argument,   0, 0},
-         {"sqallocsize", required_argument,   0, 0},
          {0, 0, 0, 0}
       };
       int option_index = 0;
@@ -140,21 +111,8 @@ int main(int argc, char **argv)
    getparams(argc,argv);
    if (algorithm == "cnf")
    {
-      Tagger<Cnftagger> tagger(tmpl.c_str(), pool);
-      tagger.setcache(cache);
+      Tagger<Cnftagger> tagger(tmpl.c_str());
       tagger.setsqcol(sqcol);
-      tagger.setsqallocsize(sqallocsize);
-      tagger.setsqarraysize(sqarraysize);
-      tagger.read(model.c_str());
-      tagger.tagging(corpus.c_str());
-   }
-   else if (algorithm == "semicnf")
-   {
-      Tagger<SemiCnftagger> tagger(tmpl.c_str(), pool);
-      tagger.setcache(cache);
-      tagger.setsqcol(sqcol);
-      tagger.setsqallocsize(sqallocsize);
-      tagger.setsqarraysize(sqarraysize);
       tagger.read(model.c_str());
       tagger.tagging(corpus.c_str());
    }

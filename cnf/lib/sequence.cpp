@@ -6,31 +6,26 @@
 # include <cstdio>
 # include <cstring>
 
-const char *sp = " ";
 
 Sequence::Sequence ()
 {
-   this->acsize = ALLOCSIZE;
-   this->arraysize = (unsigned int)(this->acsize/BLOCKSIZE);
-   this->ac = NULL;
-   this->delim = sp;
    this->colsize = 1;
    this->ngram = 1;
+   this->tokens.resize(MAX_SENT_SIZE, MAX_FEAT_NUM_EACHPOS);
 }
 
 Sequence::~Sequence ()
 {
-   this->ac->reset();
-   delete this->ac;
+	this->tokens.dealloc();
 }
 
 int Sequence::dump ()
 {
-   for (unsigned int i = 1; i <= this->point/this->colsize; i++)
+   for (unsigned int i = 0; i < this->arraysize; i++)
    {
-      for (unsigned int j = (i-1)*this->colsize; j < i*this->colsize; j++)
+      for (unsigned int j = 0; j < this->colsize; j++)
       {
-         fprintf (stdout, "%s\t",*(this->tokens+j));
+         fprintf (stdout, "%s\t",this->tokens[i][j].c_str());
       }
       fprintf (stdout, "\n");
    }
@@ -40,30 +35,10 @@ int Sequence::dump ()
 
 int Sequence::init ()
 {
-   if (this->ac != NULL)
-   {
-      delete this->ac;
-   }
-
-   this->ac = new AllocMemdiscard(this->acsize);
-   this->tokens = (char**)(this->ac->alloc(sizeof(char*)*this->arraysize));
-   this->point = 0;
-
+	this->arraysize = 0;
    return 0;
 }
 
-int Sequence::setAllocSize (unsigned int size)
-{
-   this->acsize = size;
-   //this->arraysize = (unsigned int)this->acsize/BLOCKSIZE;
-   return 0;
-}
-
-int Sequence::setArraySize (unsigned int arraysize)
-{
-   this->arraysize = arraysize;
-   return 0;
-}
 
 int Sequence::setColSize (unsigned int size)
 {
@@ -73,77 +48,47 @@ int Sequence::setColSize (unsigned int size)
 
 int Sequence::push (const char *str)
 {
-   const char *head = str;
-   const char *p = str;
-   unsigned int shift = 0;
-   unsigned int col = 0;
-   while (shift = MyUtil::getByteUtf8(str))
-   {
-      if (std::strncmp(str, this->delim, std::strlen(this->delim)) == 0)
-      {
-         if (this->point == this->arraysize)
-         {
-            fprintf (stderr, "arraysize over[%u]\n",this->arraysize);
-            //exit(1);
-            return -1;
-         }
-         int len = str - p;
-         char *token = (char*)this->ac->alloc(len+1);
-         std::strncpy(token,p,len);
-         *(token+len) = '\0';
-         *(this->tokens+this->point++) = token;
-         p = str+1;
-         ++col;
-      }
-      str += shift;
-      if (std::strlen(str) == 0)
-      {
-         break;
-      }
-   }
-   if (std::strlen(p) > 0)
-   {
-      if (this->point == this->arraysize)
-      {
-         fprintf (stderr, "arraysize over[%u]\n",this->arraysize);
-         //exit(1);
-         return -1;
-      }
-      int len = str - p;
-      char *token = (char*)this->ac->alloc(len+1);
-      std::strncpy(token,p,len);
-      *(token+len) = '\0';
-      *(this->tokens+this->point++) = token;
-      ++col;
-   }
+
+	std::string orgin = str;
+	std::vector<std::string> splits;
+	MyUtil::split_bystr(str, splits, delim);
+	int col = splits.size();
+
    if (col != this->colsize)
    {
       fprintf (stderr, "pushed tokens num != colsize[%u]\n",this->colsize);
-      fprintf (stderr, "%s\n",head);
       //exit (1);
       return -1;
+   }
+   else
+   {
+	   for(int idx = 0; idx < this->colsize; idx++)
+	   {
+		   this->tokens[this->arraysize][idx] = splits[idx];
+	   }
+	   this->arraysize++;
    }
    return col;
 }
 
+// the item number of a sequence
 unsigned int Sequence::getRowSize ()
 {
-   return this->point/this->colsize;
+   return this->arraysize;
 }
+
 
 int Sequence::clear ()
 {
-   this->ac->reset();
-   this->tokens = (char**)this->ac->alloc(sizeof(char*)*this->arraysize);
-   this->point = 0;
+	this->arraysize = 0;
    return 0;
 }
 
-char* Sequence::getToken (int row, int col)
+std::string Sequence::getToken (int row, int col)
 {
    if (col >= (int)this->colsize)
    {
-      return NULL;
+      return "";
    }
    // BOS
    if (row < 0)
@@ -151,30 +96,21 @@ char* Sequence::getToken (int row, int col)
       const char *head = "_B";
       char tail[64] = "\0";
       MyUtil::itoa(row,tail);
-      int len = std::strlen(head) + std::strlen(tail);
-      char *bos = (char*)this->ac->alloc(len+1);
-      std::strcpy(bos,head);
-      std::strcat(bos,tail);
-      *(bos+len) = '\0';
-      return bos;
+      return  std::string("_B") + std::string(tail);
    }
    // EOS
-   else if (row >= (int)(this->point/this->colsize))
+   else if (row >= (int)this->colsize)
    {
       const char *head = "_E+";
       char tail[64] = "\0";
-      MyUtil::itoa(row+(1-(int)this->point/this->colsize),tail);
-      int len = std::strlen(head) + std::strlen(tail);
-      char *eos = (char*)this->ac->alloc(len+1);
-      std::strcpy(eos,head);
-      std::strcat(eos,tail);
-      *(eos+len) = '\0';
-      return eos;
+      MyUtil::itoa(row+(int)(1-this->colsize),tail);
+
+      return std::string("_E+") + std::string(tail);
    }
    // default
-   else if (row < (int)(this->point/this->colsize) && col < (int)this->colsize)
+   else if (col < (int)this->colsize)
    {
-      return *(this->tokens+row*this->colsize+col);
+      return this->tokens[row][col];
    }
-   return NULL;
+   return "";
 }

@@ -19,8 +19,6 @@
 # include <vector>
 # include <sequence.h>
 # include <dic.h>
-# include <allocpl.h>
-# include <allocmd.h>
 # include <myutil.h>
 # include <sparsevect.h>
 
@@ -50,7 +48,7 @@ namespace Cnf
           * @param   corpus   corpus
           * @param   poolsize poolsize for dic
           */
-         Cnflearn(const char *tmpl, const char *corpus, unsigned int poolsize);
+         Cnflearn(const char *tmpl, const char *corpus);
          ~Cnflearn();
 
          /** Learn Parameters
@@ -188,8 +186,6 @@ namespace Cnf
          std::string tmpl;
          /// training corpus
          std::string corpus;
-         /// cache size for update
-         unsigned int cachesize;
          /// bound of feature
          unsigned int bound;
          /// labelsize
@@ -202,8 +198,6 @@ namespace Cnf
          Dic *ufeatures;
          /// bigram feature dic
          Dic *bfeatures;
-         /// Pool Allocator
-         PoolAlloc *ac;
          /// weights of gate function
          unsigned int nk;
          /// weights of gate function
@@ -212,10 +206,6 @@ namespace Cnf
          std::vector<int> fwit;
          /// sequence col size
          unsigned int sqcolsize;
-         /// sequence array size
-         unsigned int sqarraysize;
-         /// sequence alloc size
-         unsigned int sqallocsize;
          /// label col position in sequence
          unsigned int labelcol;
          /// instances size
@@ -223,7 +213,7 @@ namespace Cnf
          /// feature to template index
          //std::map<std::string,int> f2t;
          /// label index to surf
-         std::vector<char*> label2surf;
+         std::vector<std::string> label2surf;
          /// max id of unigram feature functions
          unsigned int umid;
          /// max id of bigram feature functions
@@ -270,7 +260,7 @@ namespace Cnf
           * @param s   sequence
           * @param current current row number
           */
-         char* expand(char *tp, Sequence *s, int current);
+         std::string expand(char *tp, Sequence *s, int current, std::string& f);
          /**
           * feature rejection
           */
@@ -314,7 +304,7 @@ namespace Cnf
          /**
           * update parameters
           */
-         void update(Sequence *sq, AllocMemdiscard *cache, unsigned int reg);
+         void update(Sequence *sq, unsigned int reg);
          /**
           * calc correct vector
           */
@@ -341,7 +331,7 @@ namespace Cnf
                float expect);
          void l1_regularize(SparseVector *v);
          void l2_regularize(SparseVector *v);
-         void inversef(nodeptr p, nodeptr nil, std::vector<char*>& f);
+         void inversef(nodeptr p, nodeptr nil, std::vector<std::string>& f);
          bool bonly;
          int botmpl;
 

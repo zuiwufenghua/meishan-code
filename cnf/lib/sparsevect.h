@@ -3,7 +3,6 @@
  */
 # ifndef __S_VEC_H__
 # define __S_VEC_H__
-# include <allocmd.h>
 # include <list>
 # define HASHSIZE 2597
 
@@ -25,7 +24,7 @@ class SparseVector
 		/**
 		 * @param	ac	allocator
 		 */
-		SparseVector(AllocMemdiscard *ac);
+		SparseVector();
 		~SparseVector();
 		/**
 		 * @param	key	key
@@ -40,11 +39,10 @@ class SparseVector
 		/// key list
 		std::list<int> keys;
 	private:
-		SparseVector();
-		SparseVector(const SparseVector&);
-		SparseVector& operator=(const SparseVector&);
-		/// allocator
-		AllocMemdiscard *ac;
+		//SparseVector();
+		//SparseVector(const SparseVector&);
+		//SparseVector& operator=(const SparseVector&);
+
 		/**
 		 * hash table
 		 */

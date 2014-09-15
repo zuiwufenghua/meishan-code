@@ -8,10 +8,11 @@
 # define __SEQUENCE_H__
 
 # include <cstdio>
-# include <allocmd.h>
+# include <string>
+# include <nrmat.h>
 
-# define ALLOCSIZE (4096*1000) // 512KB
-# define BLOCKSIZE 4096
+# define MAX_SENT_SIZE 1024
+# define MAX_FEAT_NUM_EACHPOS 1024
 
 class Sequence
 {
@@ -39,7 +40,7 @@ class Sequence
        * @param[in] col
        * @param[out] char*
        */
-      char* getToken(int row, int col);
+      std::string getToken(int row, int col);
       /**
        * @param[in] delimit
        */
@@ -48,10 +49,7 @@ class Sequence
        *
        */
       int init();
-      /**
-       * @param[in] allocsize
-       */
-      int setAllocSize(unsigned int allocsize);
+
       /**
        * @param[in] colsize
        */
@@ -60,23 +58,15 @@ class Sequence
        * @param[in] char
        */
 
-
-      /**
-       * @param[in] arraysize max num of tokens in sequence
-       */
-      int setArraySize (unsigned int arraysize);
    private:
       Sequence(const Sequence&);
       Sequence& operator=(const Sequence&);
 
-      unsigned int acsize;
-      char **tokens;
-      AllocMemdiscard *ac;
-      const char *delim;
+      NRMat<std::string> tokens;
+      const std::string delim = " ";
 
       unsigned int colsize;
       unsigned int arraysize;
-      unsigned int point;
 
       unsigned int ngram;
 };

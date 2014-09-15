@@ -7,17 +7,26 @@
 
 struct fact nilf = {NULL, NULL, -1, 0.};
 
-SparseVector::SparseVector(AllocMemdiscard *ac)
+SparseVector::SparseVector()
 {
-	this->ac = ac;
+
 	factptr p;
-	int size = (int)HASHSIZE * sizeof(*p);
-	this->table = static_cast<factptr*>(this->ac->alloc(size));
+	this->table = new factptr[HASHSIZE];
 	this->reset();
 }
 
 SparseVector::~SparseVector()
 {
+	if (this->table != NULL) {
+		for (int idx = 0; idx < HASHSIZE; idx++) {
+			factptr *p = (this->table + idx);
+			if (*p == &nilf) {
+				continue;
+			}
+			delete this->table[idx];
+		}
+		delete[] this->table;
+	}
 }
 
 SpvState SparseVector::reset()
@@ -49,9 +58,9 @@ SpvState SparseVector::add(int k, double v)
 		(*p)->val += v;
 		return SpvOk;
 	}
-	factptr n;
-	int size = sizeof(*n);
-	n = static_cast<factptr>(this->ac->alloc(size));
+
+	factptr n = new fact;
+
 	n->key = k;
 	n->val = v;
 	n->left = &nilf;
