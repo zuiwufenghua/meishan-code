@@ -850,6 +850,7 @@ void Cnflearn::extlabel(Sequence *s)
       if (l != NULL)
       {
          this->label2surf.push_back(l->key);
+         std::cout << l->key << std::endl;
       }
    }
 }
@@ -876,8 +877,13 @@ void Cnflearn::extfeature()
       this->extlabel(&sq);
       this->extract(&sq);
       this->instance++;
+      if(this->instance%1000 == 0)
+      {
+    	  fprintf (stderr,"features: %d\n",this->features->getsize());
+      }
       sq.clear();
    }
+   fprintf (stderr,"features: %d\n",this->features->getsize());
    fclose(fp);
 }
 

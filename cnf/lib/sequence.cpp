@@ -10,6 +10,7 @@
 Sequence::Sequence ()
 {
    this->colsize = 1;
+   delim = " ";
    this->ngram = 1;
    this->tokens.resize(MAX_SENT_SIZE, MAX_FEAT_NUM_EACHPOS);
 }
@@ -86,7 +87,7 @@ int Sequence::clear ()
 
 std::string Sequence::getToken (int row, int col)
 {
-   if (col >= (int)this->colsize)
+   if (col >= (int)this->colsize || col < 0)
    {
       return "";
    }
@@ -99,16 +100,16 @@ std::string Sequence::getToken (int row, int col)
       return  std::string("_B") + std::string(tail);
    }
    // EOS
-   else if (row >= (int)this->colsize)
+   else if (row >= (int)this->arraysize)
    {
       const char *head = "_E+";
       char tail[64] = "\0";
-      MyUtil::itoa(row+(int)(1-this->colsize),tail);
+      MyUtil::itoa(row+(int)(1-this->arraysize),tail);
 
       return std::string("_E+") + std::string(tail);
    }
    // default
-   else if (col < (int)this->colsize)
+   else //if (col < (int)this->colsize)
    {
       return this->tokens[row][col];
    }

@@ -163,9 +163,9 @@ class MyUtil
             }
             s->push(buf);
             count++;
-            std::cout << buf << std::endl;
+            //std::cout << buf << std::endl;
          }
-         std::cout  << std::endl;
+         //std::cout  << std::endl;
       }
       /**
        * read sequence function

@@ -63,7 +63,7 @@ class Sequence
       Sequence& operator=(const Sequence&);
 
       NRMat<std::string> tokens;
-      const std::string delim = " ";
+      std::string delim;
 
       unsigned int colsize;
       unsigned int arraysize;

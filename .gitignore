@@ -2,6 +2,6 @@
 /*/bin
 /*/obj
 /*/dist
-*.class
+/*.class
 *.o
 /*/.settings
