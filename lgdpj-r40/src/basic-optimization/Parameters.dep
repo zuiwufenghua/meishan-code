@@ -1,0 +1,12 @@
+src/basic-optimization/Parameters.o: src/basic-optimization/Parameters.cpp \
+ src/basic-optimization/Parameters.h src/basic-features/FVec.h \
+ src/util/CppAssert.h src/common.h
+	@echo CC $@
+	@$(CCOBJ) $< -o $@
+
+src/basic-optimization/Parameters-gdb.o: \
+ src/basic-optimization/Parameters.cpp \
+ src/basic-optimization/Parameters.h src/basic-features/FVec.h \
+ src/util/CppAssert.h src/common.h
+	@echo CC-gdb $@
+	@$(CCGDBOBJ) $< -o $@

@@ -1,0 +1,10 @@
+src/string-util/CharArrayEqualFunc.o: src/string-util/CharArrayEqualFunc.cpp \
+ src/string-util/CharArrayEqualFunc.h
+	@echo CC $@
+	@$(CCOBJ) $< -o $@
+
+src/string-util/CharArrayEqualFunc-gdb.o: \
+ src/string-util/CharArrayEqualFunc.cpp \
+ src/string-util/CharArrayEqualFunc.h
+	@echo CC-gdb $@
+	@$(CCGDBOBJ) $< -o $@

@@ -1,0 +1,7 @@
+src/util/Timer.o: src/util/Timer.cpp src/util/Timer.h
+	@echo CC $@
+	@$(CCOBJ) $< -o $@
+
+src/util/Timer-gdb.o: src/util/Timer.cpp src/util/Timer.h
+	@echo CC-gdb $@
+	@$(CCGDBOBJ) $< -o $@

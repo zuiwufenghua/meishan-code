@@ -1,0 +1,21 @@
+src/IOPipe.o: src/IOPipe.cpp src/IOPipe.h src/Instance.h \
+ src/basic-optimization/Parameters.h src/basic-features/FVec.h \
+ src/util/CppAssert.h src/common.h src/NRMat.h src/CONLLReader.h \
+ src/common.h src/CONLLWriter.h src/FGen.h \
+ src/basic-features/FeatureDictionary.h src/basic-features/FVec.h \
+ src/string-util/StringMap.h src/string-util/HashMap.h \
+ src/string-util/CharArrayEqualFunc.h src/string-util/CharArrayHashFunc.h \
+ src/util/Options.h src/string-util/CharUtils.h
+	@echo CC $@
+	@$(CCOBJ) $< -o $@
+
+src/IOPipe-gdb.o: src/IOPipe.cpp src/IOPipe.h src/Instance.h \
+ src/basic-optimization/Parameters.h src/basic-features/FVec.h \
+ src/util/CppAssert.h src/common.h src/NRMat.h src/CONLLReader.h \
+ src/common.h src/CONLLWriter.h src/FGen.h \
+ src/basic-features/FeatureDictionary.h src/basic-features/FVec.h \
+ src/string-util/StringMap.h src/string-util/HashMap.h \
+ src/string-util/CharArrayEqualFunc.h src/string-util/CharArrayHashFunc.h \
+ src/util/Options.h src/string-util/CharUtils.h
+	@echo CC-gdb $@
+	@$(CCGDBOBJ) $< -o $@

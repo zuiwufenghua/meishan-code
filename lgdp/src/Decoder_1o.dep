@@ -1,0 +1,13 @@
+src/Decoder_1o.o: src/Decoder_1o.cpp src/Decoder_1o.h src/Decoder.h \
+ src/ChartItem.h src/common.h src/basic-features/FVec.h \
+ src/util/CppAssert.h src/Instance.h src/basic-optimization/Parameters.h \
+ src/common.h src/NRMat.h src/util/Options.h
+	@echo CC $@
+	@$(CCOBJ) $< -o $@
+
+src/Decoder_1o-gdb.o: src/Decoder_1o.cpp src/Decoder_1o.h src/Decoder.h \
+ src/ChartItem.h src/common.h src/basic-features/FVec.h \
+ src/util/CppAssert.h src/Instance.h src/basic-optimization/Parameters.h \
+ src/common.h src/NRMat.h src/util/Options.h
+	@echo CC-gdb $@
+	@$(CCGDBOBJ) $< -o $@

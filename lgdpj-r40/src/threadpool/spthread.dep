@@ -1,0 +1,8 @@
+src/threadpool/spthread.o: src/threadpool/spthread.cpp src/threadpool/spthread.h
+	@echo CC $@
+	@$(CCOBJ) $< -o $@
+
+src/threadpool/spthread-gdb.o: src/threadpool/spthread.cpp \
+ src/threadpool/spthread.h
+	@echo CC-gdb $@
+	@$(CCGDBOBJ) $< -o $@

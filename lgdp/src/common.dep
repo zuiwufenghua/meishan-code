@@ -1,0 +1,7 @@
+src/common.o: src/common.cpp src/common.h
+	@echo CC $@
+	@$(CCOBJ) $< -o $@
+
+src/common-gdb.o: src/common.cpp src/common.h
+	@echo CC-gdb $@
+	@$(CCGDBOBJ) $< -o $@

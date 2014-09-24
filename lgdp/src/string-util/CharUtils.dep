@@ -1,0 +1,9 @@
+src/string-util/CharUtils.o: src/string-util/CharUtils.cpp src/string-util/CharUtils.h \
+ src/util/CppAssert.h
+	@echo CC $@
+	@$(CCOBJ) $< -o $@
+
+src/string-util/CharUtils-gdb.o: src/string-util/CharUtils.cpp \
+ src/string-util/CharUtils.h src/util/CppAssert.h
+	@echo CC-gdb $@
+	@$(CCGDBOBJ) $< -o $@

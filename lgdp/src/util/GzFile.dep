@@ -1,0 +1,7 @@
+src/util/GzFile.o: src/util/GzFile.cpp src/util/GzFile.h
+	@echo CC $@
+	@$(CCOBJ) $< -o $@
+
+src/util/GzFile-gdb.o: src/util/GzFile.cpp src/util/GzFile.h
+	@echo CC-gdb $@
+	@$(CCGDBOBJ) $< -o $@

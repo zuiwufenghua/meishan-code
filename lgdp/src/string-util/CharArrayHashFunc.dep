@@ -1,0 +1,10 @@
+src/string-util/CharArrayHashFunc.o: src/string-util/CharArrayHashFunc.cpp \
+ src/string-util/CharArrayHashFunc.h
+	@echo CC $@
+	@$(CCOBJ) $< -o $@
+
+src/string-util/CharArrayHashFunc-gdb.o: \
+ src/string-util/CharArrayHashFunc.cpp \
+ src/string-util/CharArrayHashFunc.h
+	@echo CC-gdb $@
+	@$(CCGDBOBJ) $< -o $@

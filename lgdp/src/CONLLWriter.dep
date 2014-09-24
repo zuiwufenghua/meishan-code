@@ -1,0 +1,17 @@
+src/CONLLWriter.o: src/CONLLWriter.cpp src/CONLLWriter.h src/NRMat.h \
+ src/FGen.h src/Instance.h src/basic-optimization/Parameters.h \
+ src/basic-features/FVec.h src/util/CppAssert.h src/common.h src/common.h \
+ src/basic-features/FeatureDictionary.h src/basic-features/FVec.h \
+ src/string-util/StringMap.h src/string-util/HashMap.h \
+ src/string-util/CharArrayEqualFunc.h src/string-util/CharArrayHashFunc.h
+	@echo CC $@
+	@$(CCOBJ) $< -o $@
+
+src/CONLLWriter-gdb.o: src/CONLLWriter.cpp src/CONLLWriter.h src/NRMat.h \
+ src/FGen.h src/Instance.h src/basic-optimization/Parameters.h \
+ src/basic-features/FVec.h src/util/CppAssert.h src/common.h src/common.h \
+ src/basic-features/FeatureDictionary.h src/basic-features/FVec.h \
+ src/string-util/StringMap.h src/string-util/HashMap.h \
+ src/string-util/CharArrayEqualFunc.h src/string-util/CharArrayHashFunc.h
+	@echo CC-gdb $@
+	@$(CCGDBOBJ) $< -o $@

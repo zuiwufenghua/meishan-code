@@ -1,0 +1,66 @@
+package is2.data;
+
+
+final public class F2SF extends IFV {
+
+	final private float[] parameters;
+	
+
+	
+	public float score =0;
+	
+	public F2SF(float[] p) {
+		parameters =p;
+	}
+	
+	@Override
+	final  public void add(int i) {
+		if (i>0) score += parameters[i];
+	}
+
+	
+	final  public void sub(float[] px,int i, Long2IntInterface li) {
+		
+		if (i>0) {
+			score -= px[li.l2i(i)];
+//			score -= px[i];
+			//else score -=px[];
+		}
+	}
+
+	
+	@Override
+	public void clear() {
+		score =0;
+	}
+
+
+	/* (non-Javadoc)
+	 * @see is2.IFV#getScore()
+	 */
+	@Override
+	public double getScore() {
+		return score;
+	}
+
+	public float getScoreF() {
+		return score;
+	}
+
+	/* (non-Javadoc)
+	 * @see is2.IFV#clone()
+	 */
+	@Override
+	public IFV clone() {
+		return new F2SF(this.parameters);
+	}
+
+	/**
+	 * @param l2i
+	 */
+	public void addRel(int i, float f) {
+		if (i>0) score += parameters[i]*f;
+		
+	}
+	
+}

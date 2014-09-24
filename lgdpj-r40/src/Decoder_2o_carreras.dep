@@ -1,0 +1,15 @@
+src/Decoder_2o_carreras.o: src/Decoder_2o_carreras.cpp \
+ src/Decoder_2o_carreras.h src/Decoder.h src/ChartItem.h src/common.h \
+ src/basic-features/FVec.h src/util/CppAssert.h src/Instance.h \
+ src/basic-optimization/Parameters.h src/common.h src/NRMat.h \
+ src/util/Options.h
+	@echo CC $@
+	@$(CCOBJ) $< -o $@
+
+src/Decoder_2o_carreras-gdb.o: src/Decoder_2o_carreras.cpp \
+ src/Decoder_2o_carreras.h src/Decoder.h src/ChartItem.h src/common.h \
+ src/basic-features/FVec.h src/util/CppAssert.h src/Instance.h \
+ src/basic-optimization/Parameters.h src/common.h src/NRMat.h \
+ src/util/Options.h
+	@echo CC-gdb $@
+	@$(CCGDBOBJ) $< -o $@

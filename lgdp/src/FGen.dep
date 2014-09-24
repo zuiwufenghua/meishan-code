@@ -1,0 +1,19 @@
+src/FGen.o: src/FGen.cpp src/FGen.h src/Instance.h \
+ src/basic-optimization/Parameters.h src/basic-features/FVec.h \
+ src/util/CppAssert.h src/common.h src/NRMat.h src/common.h \
+ src/basic-features/FeatureDictionary.h src/basic-features/FVec.h \
+ src/string-util/StringMap.h src/string-util/HashMap.h \
+ src/string-util/CharArrayEqualFunc.h src/string-util/CharArrayHashFunc.h \
+ src/util/Options.h src/string-util/CharUtils.h
+	@echo CC $@
+	@$(CCOBJ) $< -o $@
+
+src/FGen-gdb.o: src/FGen.cpp src/FGen.h src/Instance.h \
+ src/basic-optimization/Parameters.h src/basic-features/FVec.h \
+ src/util/CppAssert.h src/common.h src/NRMat.h src/common.h \
+ src/basic-features/FeatureDictionary.h src/basic-features/FVec.h \
+ src/string-util/StringMap.h src/string-util/HashMap.h \
+ src/string-util/CharArrayEqualFunc.h src/string-util/CharArrayHashFunc.h \
+ src/util/Options.h src/string-util/CharUtils.h
+	@echo CC-gdb $@
+	@$(CCGDBOBJ) $< -o $@

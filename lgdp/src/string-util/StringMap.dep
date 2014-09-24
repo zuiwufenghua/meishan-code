@@ -1,0 +1,13 @@
+src/string-util/StringMap.o: src/string-util/StringMap.cpp src/string-util/StringMap.h \
+ src/string-util/HashMap.h src/string-util/CharArrayEqualFunc.h \
+ src/string-util/CharArrayHashFunc.h src/util/Constants.h \
+ src/string-util/CharUtils.h src/util/CppAssert.h
+	@echo CC $@
+	@$(CCOBJ) $< -o $@
+
+src/string-util/StringMap-gdb.o: src/string-util/StringMap.cpp \
+ src/string-util/StringMap.h src/string-util/HashMap.h \
+ src/string-util/CharArrayEqualFunc.h src/string-util/CharArrayHashFunc.h \
+ src/util/Constants.h src/string-util/CharUtils.h src/util/CppAssert.h
+	@echo CC-gdb $@
+	@$(CCGDBOBJ) $< -o $@

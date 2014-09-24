@@ -1,0 +1,27 @@
+src/lgdpj.o: src/lgdpj.cpp src/util/Constants.h src/util/Options.h \
+ src/Parser.h src/IOPipe.h src/Instance.h \
+ src/basic-optimization/Parameters.h src/basic-features/FVec.h \
+ src/util/CppAssert.h src/common.h src/NRMat.h src/CONLLReader.h \
+ src/common.h src/CONLLWriter.h src/FGen.h \
+ src/basic-features/FeatureDictionary.h src/basic-features/FVec.h \
+ src/string-util/StringMap.h src/string-util/HashMap.h \
+ src/string-util/CharArrayEqualFunc.h src/string-util/CharArrayHashFunc.h \
+ src/Decoder_1o.h src/Decoder.h src/ChartItem.h src/Decoder_2o_carreras.h \
+ src/Decoder_3o_koo.h src/util/GzFile.h src/string-util/CharUtils.h \
+ src/threadpool/spthread.h src/threadpool/threadpool.h
+	@echo CC $@
+	@$(CCOBJ) $< -o $@
+
+src/lgdpj-gdb.o: src/lgdpj.cpp src/util/Constants.h src/util/Options.h \
+ src/Parser.h src/IOPipe.h src/Instance.h \
+ src/basic-optimization/Parameters.h src/basic-features/FVec.h \
+ src/util/CppAssert.h src/common.h src/NRMat.h src/CONLLReader.h \
+ src/common.h src/CONLLWriter.h src/FGen.h \
+ src/basic-features/FeatureDictionary.h src/basic-features/FVec.h \
+ src/string-util/StringMap.h src/string-util/HashMap.h \
+ src/string-util/CharArrayEqualFunc.h src/string-util/CharArrayHashFunc.h \
+ src/Decoder_1o.h src/Decoder.h src/ChartItem.h src/Decoder_2o_carreras.h \
+ src/Decoder_3o_koo.h src/util/GzFile.h src/string-util/CharUtils.h \
+ src/threadpool/spthread.h src/threadpool/threadpool.h
+	@echo CC-gdb $@
+	@$(CCGDBOBJ) $< -o $@

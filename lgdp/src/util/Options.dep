@@ -1,0 +1,13 @@
+src/util/Options.o: src/util/Options.cpp src/util/Options.h src/util/CppAssert.h \
+ src/string-util/StringMap.h src/string-util/HashMap.h \
+ src/string-util/CharArrayEqualFunc.h src/string-util/CharArrayHashFunc.h \
+ src/string-util/CharUtils.h
+	@echo CC $@
+	@$(CCOBJ) $< -o $@
+
+src/util/Options-gdb.o: src/util/Options.cpp src/util/Options.h \
+ src/util/CppAssert.h src/string-util/StringMap.h \
+ src/string-util/HashMap.h src/string-util/CharArrayEqualFunc.h \
+ src/string-util/CharArrayHashFunc.h src/string-util/CharUtils.h
+	@echo CC-gdb $@
+	@$(CCGDBOBJ) $< -o $@

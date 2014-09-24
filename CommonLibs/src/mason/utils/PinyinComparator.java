@@ -5,12 +5,7 @@ import java.util.Comparator;
 import net.sourceforge.pinyin4j.PinyinHelper;
 import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
 
-/**
- * ���ְ���ƴ������ıȽ���?
- * 
- * @author KennyLee 2009-2-23 10:08:59
- * 
- */
+
 public class PinyinComparator implements Comparator<Object> {
 	public int compare(Object o1, Object o2) {
 		char c1 = ((String) o1).charAt(0);

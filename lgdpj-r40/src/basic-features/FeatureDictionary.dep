@@ -1,0 +1,18 @@
+src/basic-features/FeatureDictionary.o: src/basic-features/FeatureDictionary.cpp \
+ src/basic-features/FeatureDictionary.h src/basic-features/FVec.h \
+ src/util/CppAssert.h src/string-util/StringMap.h \
+ src/string-util/HashMap.h src/string-util/CharArrayEqualFunc.h \
+ src/string-util/CharArrayHashFunc.h src/string-util/CharUtils.h \
+ src/util/Constants.h src/util/GzFile.h
+	@echo CC $@
+	@$(CCOBJ) $< -o $@
+
+src/basic-features/FeatureDictionary-gdb.o: \
+ src/basic-features/FeatureDictionary.cpp \
+ src/basic-features/FeatureDictionary.h src/basic-features/FVec.h \
+ src/util/CppAssert.h src/string-util/StringMap.h \
+ src/string-util/HashMap.h src/string-util/CharArrayEqualFunc.h \
+ src/string-util/CharArrayHashFunc.h src/string-util/CharUtils.h \
+ src/util/Constants.h src/util/GzFile.h
+	@echo CC-gdb $@
+	@$(CCGDBOBJ) $< -o $@
